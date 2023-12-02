@@ -1,0 +1,53 @@
+
+model:
+  net: "unet"
+  nclass: 1
+  in_ch: 1
+  kwargs: "{}"
+
+trainer:
+  loggers: ['console', 'file']
+  output_path: "../RL-041201-best/trail-27" 
+  gpus: "2,3"
+  to_cuda: True
+  seed: 12345
+  epoch: 30
+
+  stage: "train"
+  test_epoch: -1 
+  load_from: ""
+  start_save_intermediate_model: 25
+  start_eval: 0
+
+datasets:
+  root: "../Main/dataset/Kidney"
+  train_data_dir: "../Main/dataset/Kidney/train.csv"
+  val_data_dir: "../Main/dataset/Kidney/val.csv"
+  test_data_dir: "../Main/dataset/Kidney/test.csv"
+  name: "Kidney"
+  nclass: 1
+
+dataloader:
+  train_batch_size: 8
+  test_batch_size : 8
+  num_workers: 0
+  shuffle : True
+  drop_last : False
+
+solver:
+  base_lr : 0.00025  # 0.00001
+  optimizer : "adam"
+  weight_decay : 0.0005
+
+scheduler:
+  name: "poly"
+  warmup_epochs: 0
+  iteration_decay: True
+  kwargs: "{}"
+
+evaluate:
+  loss_func : 'dice'  # 'ce'
+  loss_kwargs: "{}"
+#  loss_kwargs : "{'weights': '[1, 1, 10]'}"
+  eval_func : 'dice'
+  eval_kwargs: "{'multi_inputs_axis':-1}"

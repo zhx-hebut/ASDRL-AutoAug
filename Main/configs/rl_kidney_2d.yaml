@@ -1,0 +1,84 @@
+
+# Data
+datasets:
+  root: "../Main/dataset/Kidney"
+  train_data_dir: "../train.csv"
+  val_data_dir: "../val.csv"
+  test_data_dir: "../test.csv"
+  name: "Kidney"
+  nclass: 1
+
+dataloader:              
+  train_batch_size: 8    
+  test_batch_size : 24    
+  num_workers: 0
+  shuffle : True
+  drop_last : False
+
+# DQN Trainer
+trainer:
+  loggers: ['console', 'file']
+  output_path: "../RL-041101" 
+  seed: 12345
+  epochs: 55
+  replay_init: 1000
+  image_output_path: "../RL-041101"
+  image_output_bestpath: "../RL-041101/best" 
+  stage: "train"
+  test_epoch: -1
+  start_save_intermediate_model: 30
+  start_eval: 0
+
+  # train segmentation network for test policy
+  basic_net: "unet"
+  nclass: 1
+  in_ch: 1
+  kwargs: "{}"
+  gpus: "1" 
+  seg_epochs: 30 #150
+
+  slo_base_lr: 0.00025  # 0.00001
+  slo_optimizer: "adam"
+  slo_weight_decay: 0.0005
+
+  sch_name: "poly"
+  sch_warmup_epochs: 0
+  sch_iteration_decay: True
+  sch_kwargs: "{}"
+
+# ======================================================================
+# =================================DRL==================================
+# ======================================================================
+agent:
+  optimizer: 'adam' #SGD
+  gamma: 0.1
+  lr: 0.001
+  batch_size: 32
+  replay_initial: 100000
+  gpus: "0"
+
+Environment:
+  action_space : ['HF', 'VF','LR','RR', 'CL', 'CR', 'CU', 'CD', 'ZM', 'AN', 'LT', 'DK'] 
+  # max_steps : 6
+
+
+Reward:
+  basic_net : "unet"
+  nclass: 1
+  in_ch: 1
+  kwargs: "{}"
+  basic_params_path: "../best.pth"
+  gpus: "0,1,2,3"
+
+  # solver
+  finetune_lr: 0.000005 #0.000005
+  optimizer: "adam" #sgd
+  weight_decay: 0.
+  momentum: 0.9
+
+  # evaluate
+  loss_func: "dice"
+  loss_kwargs: "{}"
+  #  loss_kwargs : "{'weights': '[1, 1, 10]'}"
+  eval_func : 'dice'
+  eval_kwargs: "{'multi_inputs_axis':-1}"
